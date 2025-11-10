@@ -42,19 +42,22 @@ include_once('include/custom-post-type-google-faq.php');
 include_once('include/customizer/select-pages.php');
 
 //for custom-post-type-clients
-include_once('include/custom-post-type-clients.php');
+//include_once('include/custom-post-type-clients.php');
 
 //for title-name
 include_once('include/title-name.php');
 
-//for custom-post-type-service.php
-include_once('include/custom-post-type-service.php');
-
 //for validation-file.php
 include_once('include/validation-file.php');
 
-add_action('init', 'gp_register_taxonomy_for_object_type');
-function gp_register_taxonomy_for_object_type()
-{
-    register_taxonomy_for_object_type('post_tag', 'themes');
-};
+//for gp-register-taxonomy-for-object-type.php
+include_once('include/gp-register-taxonomy-for-object-type.php');
+
+//for client-post-type.php
+include_once('include/ajax/client-post-type.php');
+
+//for ajax-handler.php
+include_once('include/ajax/ajax-handler.php');
+
+//for service-post-type.php
+include_once('include/ajax/service-post-type.php');
