@@ -55,8 +55,10 @@ function faroque_load_clients(){
         $email = esc_html(get_field('client_email', $client_id));
         $address = esc_html(get_field('client_address', $client_id));
 
-        $client_link = get_permalink($client_id);
-        $client_name_link = '<a href="'.esc_url($client_link).'" target="_blank">'.$client_name.'</a>';
+        $details_page = site_url('/client-details/');
+        $client_name_link = '<a href="'.$details_page.'?client_id='.$client_id.'">'.$client_name.'</a>';
+
+
 
         $services = isset($client_services[$client_id]) ? $client_services[$client_id] : [];
 
