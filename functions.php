@@ -61,3 +61,6 @@ include_once('include/ajax/ajax-handler.php');
 
 //for service-post-type.php
 include_once('include/ajax/service-post-type.php');
+
+//for service-post-type.php
+include_once('include/ajax/unique-phone-email-validator.php');
