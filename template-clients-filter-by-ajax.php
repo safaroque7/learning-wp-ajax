@@ -4,6 +4,15 @@ Template Name: Clients DataTable Page
 */
 get_header();
 global $wpdb;
+
+// ===============================
+// Password Protection Check
+// ===============================
+if ( post_password_required() ) {
+    echo get_the_password_form();
+    get_footer();
+    return; // Password না দেওয়া হলে বাকি অংশ লোড হবে না
+}
 ?>
 
 <div class="container-fluid my-4">

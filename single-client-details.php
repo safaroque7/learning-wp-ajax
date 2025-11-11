@@ -4,6 +4,15 @@ Template Name: Client Details Page
 */
 get_header();
 
+// ===============================
+// Password Protection Check
+// ===============================
+if ( post_password_required() ) {
+    echo get_the_password_form();
+    get_footer();
+    return; // Password না দেওয়া হলে বাকি অংশ লোড হবে না
+}
+
 // ================
 // Get Client ID
 // ================

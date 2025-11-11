@@ -47,11 +47,11 @@ include_once('include/customizer/select-pages.php');
 //for title-name
 include_once('include/title-name.php');
 
-//for validation-file.php
-include_once('include/validation-file.php');
-
 //for gp-register-taxonomy-for-object-type.php
 include_once('include/gp-register-taxonomy-for-object-type.php');
+
+//for validation-file.php
+include_once('include/ajax/client-name-validation-file.php');
 
 //for client-post-type.php
 include_once('include/ajax/client-post-type.php');
