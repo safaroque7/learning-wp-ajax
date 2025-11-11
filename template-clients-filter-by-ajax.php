@@ -118,111 +118,178 @@ if ( post_password_required() ) {
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-jQuery(document).ready(function($){
+    jQuery(document).ready(function ($) {
 
-    let table = $('#clientTable').DataTable({
-        ajax: {
-            url: '<?php echo admin_url("admin-ajax.php"); ?>',
-            type: 'POST',
-            data: function(d){
-                d.action = 'faroque_load_clients';
-                d.filters = {};
-                $('.filter:checked').not('[data-type="show"]').each(function(){
-                    let type = $(this).data('type');
-                    if(!d.filters[type]) d.filters[type] = [];
-                    d.filters[type].push($(this).val());
-                });
+        let table = $('#clientTable').DataTable({
+            ajax: {
+                url: '<?php echo admin_url("admin-ajax.php"); ?>',
+                type: 'POST',
+                data: function (d) {
+                    d.action = 'faroque_load_clients';
+                    d.filters = {};
+                    $('.filter:checked').not('[data-type="show"]').each(function () {
+                        let type = $(this).data('type');
+                        if (!d.filters[type]) d.filters[type] = [];
+                        d.filters[type].push($(this).val());
+                    });
+                },
+                dataSrc: 'data'
             },
-            dataSrc: 'data'
-        },
-        columns: [
-            { data: 'sl', title: 'SL' },
-            { data: 'name', title: 'Client Name' },
-            { data: 'phone', title: 'Phone' },
-            { data: 'email', title: 'Email' },
-            { data: 'khatha_no', title: 'Khatha No.' },
-            { data: 'domains', title: 'Domains' },
-            { data: 'domain_provider', title: 'Domain Provider' },
-            { data: 'hosting_provider', title: 'Hosting Provider' },
-            { data: 'address', title: 'Address' },
-            { data: 'status', title: 'Status' },
-            { data: 'review', title: 'Review' }
-        ],
-        pageLength: 10,
-        responsive: true,
-        scrollX: true,
-        autoWidth: false,
-        drawCallback: function(){
-            showExtraBoxes();
-        }
-    });
-
-    // Filter reload
-    $('.filter').not('[data-type="show"]').on('change', function(){
-        table.ajax.reload();
-    });
-
-    // Show Email / Phone Boxes
-    function showExtraBoxes(){
-        $('#extraBoxes').remove();
-
-        let showFields = [];
-        $('.filter[data-type="show"]:checked').each(function(){
-            showFields.push($(this).val());
+            columns: [{
+                    data: 'sl',
+                    title: 'SL'
+                },
+                {
+                    data: 'name',
+                    title: 'Client Name'
+                },
+                {
+                    data: 'phone',
+                    title: 'Phone'
+                },
+                {
+                    data: 'email',
+                    title: 'Email'
+                },
+                {
+                    data: 'khatha_no',
+                    title: 'Khatha No.'
+                },
+                {
+                    data: 'domains',
+                    title: 'Domains'
+                },
+                {
+                    data: 'domain_provider',
+                    title: 'Domain Provider'
+                },
+                {
+                    data: 'hosting_provider',
+                    title: 'Hosting Provider'
+                },
+                {
+                    data: 'address',
+                    title: 'Address'
+                },
+                {
+                    data: 'status',
+                    title: 'Status'
+                },
+                {
+                    data: 'review',
+                    title: 'Review'
+                }
+            ],
+            pageLength: 10,
+            responsive: true,
+            scrollX: true,
+            autoWidth: false,
+            drawCallback: function () {
+                updateExtraBoxes();
+            }
         });
 
-        if(showFields.length === 0) return;
+        // Row filtering by Status (Active / Inactive / Pending)
+        function filterRowsByStatus() {
+            let selectedStatus = [];
+            $('.filter[data-type="status"]:checked').each(function () {
+                selectedStatus.push($(this).val());
+            });
 
-        let boxHtml = '<div id="extraBoxes" class="my-3">';
-        let data = table.ajax.json();
-        if(!data || !data.data) return;
+            if (selectedStatus.length === 0) {
+                table.rows().show();
+                return;
+            }
 
-        // Emails
-        if(showFields.includes('email')){
-            let emails = data.data.map(r => r.email).filter(e => e && e != '-');
-            if(emails.length){
-                boxHtml += `<div class="mb-3">
+            table.rows().every(function () {
+                let status = this.data().status.replace(/<br>/g, ', ');
+                let match = selectedStatus.some(s => status.includes(s));
+                if (match) $(this.node()).show();
+                else $(this.node()).hide();
+            });
+        }
+
+        $('.filter[data-type="status"]').on('change', function () {
+            filterRowsByStatus();
+            updateExtraBoxes();
+        });
+
+        // Filter reload (domain, hosting, review)
+        $('.filter').not('[data-type="show"], [data-type="status"]').on('change', function () {
+            table.ajax.reload();
+        });
+
+        // Show Email / Phone Boxes filtered by Status
+        function updateExtraBoxes() {
+            $('#extraBoxes').remove();
+
+            let showFields = [];
+            $('.filter[data-type="show"]:checked').each(function () {
+                showFields.push($(this).val());
+            });
+
+            if (showFields.length === 0) return;
+
+            let selectedStatus = [];
+            $('.filter[data-type="status"]:checked').each(function () {
+                selectedStatus.push($(this).val());
+            });
+
+            let boxHtml = '<div id="extraBoxes" class="my-3">';
+            let data = table.ajax.json();
+            if (!data || !data.data) return;
+
+            let rows = data.data.filter(r => {
+                if (selectedStatus.length === 0) return true;
+                return selectedStatus.some(s => r.status.includes(s));
+            });
+
+            // Emails
+            if (showFields.includes('email')) {
+                let emails = rows.map(r => r.email).filter(e => e && e != '-');
+                if (emails.length) {
+                    boxHtml += `<div class="mb-3">
                     <h6>All Emails (Total: ${emails.length})</h6>
                     <textarea id="emailListBox" class="form-control" rows="4">${emails.join(", ")}</textarea>
                     <button id="copyEmailsBtn" class="btn btn-sm btn-primary mt-2">Copy All Emails</button>
                 </div>`;
+                }
             }
-        }
 
-        // Phones
-        if(showFields.includes('phone')){
-            let phones = data.data.map(r => r.phone).filter(p => p && p != '-');
-            if(phones.length){
-                boxHtml += `<div class="mb-3">
+            // Phones
+            if (showFields.includes('phone')) {
+                let phones = rows.map(r => r.phone).filter(p => p && p != '-');
+                if (phones.length) {
+                    boxHtml += `<div class="mb-3">
                     <h6>All Phone Numbers (Total: ${phones.length})</h6>
                     <textarea id="phoneListBox" class="form-control" rows="4">${phones.join(", ")}</textarea>
                     <button id="copyPhonesBtn" class="btn btn-sm btn-success mt-2">Copy All Phones</button>
                 </div>`;
+                }
             }
+
+            boxHtml += '</div>';
+            $('#clientTable_wrapper').before(boxHtml);
+
+            $('#copyEmailsBtn').on('click', function () {
+                $('#emailListBox').select();
+                document.execCommand('copy');
+                alert('✅ All emails copied!');
+            });
+
+            $('#copyPhonesBtn').on('click', function () {
+                $('#phoneListBox').select();
+                document.execCommand('copy');
+                alert('✅ All phone numbers copied!');
+            });
         }
 
-        boxHtml += '</div>';
-        $('#clientTable_wrapper').before(boxHtml);
-
-        $('#copyEmailsBtn').on('click', function(){
-            $('#emailListBox').select();
-            document.execCommand('copy');
-            alert('✅ All emails copied!');
+        // Show Email / Phone toggle
+        $('.filter[data-type="show"]').on('change', function () {
+            updateExtraBoxes();
         });
 
-        $('#copyPhonesBtn').on('click', function(){
-            $('#phoneListBox').select();
-            document.execCommand('copy');
-            alert('✅ All phone numbers copied!');
-        });
-    }
-
-    // Checkbox change triggers box update
-    $('.filter[data-type="show"]').on('change', function(){
-        showExtraBoxes();
     });
-
-});
 </script>
 
 <?php get_footer(); ?>
