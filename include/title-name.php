@@ -8,7 +8,7 @@ function title_name_client($title)
         $title = "Client's Name";
     }
     //for service
-    if ('service' == $screen->post_type) {
+    if ('services' == $screen->post_type) {
         $title = "Domain's or Project's Name";
     }
     return $title;

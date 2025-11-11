@@ -5,13 +5,14 @@
 add_action('wp_ajax_faroque_load_clients', 'faroque_load_clients');
 add_action('wp_ajax_nopriv_faroque_load_clients', 'faroque_load_clients');
 
-function faroque_load_clients(){
+function faroque_load_clients()
+{
 
     $filters = isset($_POST['filters']) ? $_POST['filters'] : [];
 
     // Prepare meta_query for filtering services
     $meta_query = [];
-    foreach($filters as $key => $values){
+    foreach ($filters as $key => $values) {
         $meta_query[] = [
             'key' => $key,
             'value' => $values,
@@ -28,10 +29,10 @@ function faroque_load_clients(){
 
     // Map client_id => services
     $client_services = [];
-    foreach($services as $srv){
+    foreach ($services as $srv) {
         $client_id = get_field('client_id', $srv->ID);
-        if(!$client_id) continue;
-        if(is_array($client_id)) $client_id = $client_id[0];
+        if (!$client_id) continue;
+        if (is_array($client_id)) $client_id = $client_id[0];
         $client_id = is_object($client_id) ? $client_id->ID : $client_id;
         $client_services[$client_id][] = $srv;
     }
@@ -48,7 +49,7 @@ function faroque_load_clients(){
     $data = [];
     $sl = 1;
 
-    foreach($clients as $client){
+    foreach ($clients as $client) {
         $client_id = $client->ID;
         $client_name = esc_html(get_the_title($client_id));
         $phone = esc_html(get_field('phone_number', $client_id));
@@ -56,7 +57,7 @@ function faroque_load_clients(){
         $address = esc_html(get_field('client_address', $client_id));
 
         $details_page = site_url('/client-details/');
-        $client_name_link = '<a href="'.$details_page.'?client_id='.$client_id.'">'.$client_name.'</a>';
+        $client_name_link = '<a href="' . $details_page . '?client_id=' . $client_id . '">' . $client_name . '</a>';
 
 
 
@@ -69,8 +70,8 @@ function faroque_load_clients(){
         $statuses = [];
         $reviews = [];
 
-        foreach($services as $srv){
-            $domains[] = '<a href="https://'.esc_html($srv->post_title).'" target="_blank">'.esc_html($srv->post_title).'</a>';
+        foreach ($services as $srv) {
+            $domains[] = '<a href="https://' . esc_html($srv->post_title) . '" target="_blank">' . esc_html($srv->post_title) . '</a>';
             $khatha_nos[] = esc_html(get_field('khatha_no', $srv->ID));
             $domain_providers[] = esc_html(get_field('domain_provider', $srv->ID));
             $hosting_providers[] = esc_html(get_field('hosting_provider', $srv->ID));
@@ -93,5 +94,5 @@ function faroque_load_clients(){
         ];
     }
 
-    wp_send_json(['data'=>$data]);
+    wp_send_json(['data' => $data]);
 }
