@@ -39,8 +39,9 @@ if ($client_photo) {
 } elseif ($featured_img) {
     $photo_url = esc_url($featured_img);
 } else {
-    $photo_url = 'https://via.placeholder.com/300x300?text=No+Image';
+    $photo_url = 'https://placehold.co/300x300?text=No+Image';
 }
+
 
 // ==========================
 // Get all services of client
@@ -151,10 +152,10 @@ if (!$statuses) {
     }
 </style>
 
-<div class="container my-5">
+<div class="container-fluid my-5">
     <div class="row">
         <!-- Left Side: Contact Info + Total Domains -->
-        <div class="col-md-4">
+        <div class="col-md-2">
             <!-- Back Button -->
             <a href="<?php echo site_url('/clients/'); ?>" class="btn btn-outline-primary btn-sm mb-3">
                 &larr; Back to Clients
@@ -207,7 +208,7 @@ if (!$statuses) {
 
 
         <!-- Right Side: Domain/Service Table -->
-        <div class="col-md-8">
+        <div class="col-md-10">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <h5 class="card-title mb-3 font-weight-bold text-primary">
@@ -216,7 +217,7 @@ if (!$statuses) {
                     <?php if ($total_domains > 0): ?>
                     <div class="table-responsive">
                         <table id="clientServices" class="table table-bordered table-striped">
-                            <thead class="thead-dark">
+                            <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>Domain Name</th>
