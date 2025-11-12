@@ -121,7 +121,12 @@ if (post_password_required()) {
         <!-- Results -->
         <div class="col-md-10">
             <div class="bg-white p-md-3 p-1">
-                <h3 class="text-center mb-3">Clients' Information</h3>
+                <h3 class="text-center mb-3"> 
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            Clients' Information
+                        </div>
+                </div> </h3>
                 <table id="clientTable" class="display w-100"></table>
             </div>
         </div>
