@@ -97,6 +97,23 @@ if (post_password_required()) {
                     }
                     ?>
 
+                    <hr>
+
+                    <!-- Filter By Project Type -->
+                    <h6> Filter by Project Type </h6>
+                    <?php 
+                        $projectTypes = $wpdb->get_col("
+                            SELECT DISTINCT pm.meta_value
+                            FROM {$wpdb->postmeta} pm
+                            INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                            WHERE pm.meta_key='project_type' AND p.post_type='services' AND p.post_status='publish'
+                            ORDER BY pm.meta_value ASC
+                        ");
+                        foreach($projectTypes as $projectType ) {
+                            echo '<label> <input type="checkbox" class="filter" value="' . esc_attr($projectType) . '" data-type="project_type"> ' . esc_html($projectType) . '</label>';
+                        };
+                     ?>
+
                 </div>
             </div>
         </div>
@@ -118,203 +135,168 @@ if (post_password_required()) {
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-    jQuery(document).ready(function($) {
+jQuery(document).ready(function ($) {
 
-        let table;
-        let allData = [];
+    let table;
+    let allData = [];
 
-        // Load all clients once via AJAX
-        function loadClients() {
-            $.ajax({
-                url: '<?php echo admin_url("admin-ajax.php"); ?>',
-                type: 'POST',
-                data: {
-                    action: 'faroque_load_clients'
-                },
-                success: function(res) {
-                    allData = res.data;
-                    initDataTable(allData);
-                }
-            });
-        }
+    // Load all clients once via AJAX
+    function loadClients() {
+        $.ajax({
+            url: '<?php echo admin_url("admin-ajax.php"); ?>',
+            type: 'POST',
+            data: { action: 'faroque_load_clients' },
+            success: function (res) {
+                allData = res.data;
+                initDataTable(allData);
+            }
+        });
+    }
 
-        function initDataTable(data) {
-            if (table) table.destroy();
+    function initDataTable(data) {
+        if (table) table.destroy();
 
-            table = $('#clientTable').DataTable({
-                data: data,
-                columns: [{
-                        data: 'sl',
-                        title: 'SL'
-                    },
-                    {
-                        data: 'name',
-                        title: 'Client Name'
-                    },
-                    {
-                        data: 'phone',
-                        title: 'Phone'
-                    },
-                    {
-                        data: 'email',
-                        title: 'Email'
-                    },
-                    {
-                        data: 'khatha_no',
-                        title: 'Khatha No.'
-                    },
-                    {
-                        data: 'domains',
-                        title: 'Domains'
-                    },
-                    {
-                        data: 'domain_provider',
-                        title: 'Domain Provider'
-                    },
-                    {
-                        data: 'hosting_provider',
-                        title: 'Hosting Provider'
-                    },
-                    {
-                        data: 'address',
-                        title: 'Address'
-                    },
-                    {
-                        data: 'status',
-                        title: 'Status'
-                    },
-                    {
-                        data: 'review',
-                        title: 'Review'
-                    }
-                ],
-                pageLength: 10,
-                responsive: true,
-                scrollX: true,
-                autoWidth: false,
-                drawCallback: function() {
-                    updateExtraBoxes();
-                }
-            });
-
-            applyFilters();
-        }
-
-        // Apply filters
-        function applyFilters() {
-            table.rows().every(function() {
-                let rowData = this.data();
-
-                // Selected filters
-                let selectedStatus = $('.filter[data-type="status"]:checked').map(function() {
-                    return $(this).val();
-                }).get();
-                let selectedDomains = $('.filter[data-type="domain_provider"]:checked').map(function() {
-                    return $(this).val();
-                }).get();
-                let selectedHostings = $('.filter[data-type="hosting_provider"]:checked').map(function() {
-                    return $(this).val();
-                }).get();
-                let selectedReviews = $('.filter[data-type="review"]:checked').map(function() {
-                    return $(this).val();
-                }).get();
-
-                let statusMatch = selectedStatus.length === 0 || selectedStatus.some(s => rowData.status.includes(s));
-                let domainMatch = selectedDomains.length === 0 || selectedDomains.some(d => rowData.domain_provider.includes(d));
-                let hostingMatch = selectedHostings.length === 0 || selectedHostings.some(h => rowData.hosting_provider.includes(h));
-                let reviewMatch = selectedReviews.length === 0 || selectedReviews.some(r => rowData.review.includes(r));
-
-                if (statusMatch && domainMatch && hostingMatch && reviewMatch) {
-                    $(this.node()).show();
-                } else {
-                    $(this.node()).hide();
-                }
-            });
-
-            updateExtraBoxes();
-        }
-
-        // Filter change events
-        $('.filter').on('change', function() {
-            applyFilters();
+        table = $('#clientTable').DataTable({
+            data: data,
+            columns: [
+                { data: 'sl', title: 'SL' },
+                { data: 'name', title: 'Client Name' },
+                { data: 'phone', title: 'Phone' },
+                { data: 'email', title: 'Email' },
+                { data: 'khatha_no', title: 'Khatha No.' },
+                { data: 'domains', title: 'Domains' },
+                { data: 'domain_provider', title: 'Domain Provider' },
+                { data: 'hosting_provider', title: 'Hosting Provider' },
+                { data: 'address', title: 'Address' },
+                { data: 'status', title: 'Status' },
+                { data: 'review', title: 'Review' }
+            ],
+            pageLength: 10,
+            responsive: true,
+            scrollX: true,
+            autoWidth: false,
+            drawCallback: function () {
+                updateExtraBoxes();
+            }
         });
 
-        // Show Email / Phone boxes
-        function updateExtraBoxes() {
-            $('#extraBoxes').remove();
+        applyFilters();
+    }
 
-            let showFields = $('.filter[data-type="show"]:checked').map(function() {
-                return $(this).val();
-            }).get();
-            if (showFields.length === 0) return;
+    // Apply filters
+    function applyFilters() {
+        table.rows().every(function () {
+            let rowData = this.data();
 
-            let selectedStatus = $('.filter[data-type="status"]:checked').map(function() {
-                return $(this).val();
-            }).get();
-            let selectedDomains = $('.filter[data-type="domain_provider"]:checked').map(function() {
-                return $(this).val();
-            }).get();
-            let selectedHostings = $('.filter[data-type="hosting_provider"]:checked').map(function() {
-                return $(this).val();
-            }).get();
-            let selectedReviews = $('.filter[data-type="review"]:checked').map(function() {
-                return $(this).val();
-            }).get();
+            let selectedStatus = $('.filter[data-type="status"]:checked').map(function () { return $(this).val(); }).get();
+            let selectedDomains = $('.filter[data-type="domain_provider"]:checked').map(function () { return $(this).val(); }).get();
+            let selectedHostings = $('.filter[data-type="hosting_provider"]:checked').map(function () { return $(this).val(); }).get();
+            let selectedReviews = $('.filter[data-type="review"]:checked').map(function () { return $(this).val(); }).get();
+            let selectedProjects = $('.filter[data-type="project_type"]:checked').map(function () { return $(this).val(); }).get();
 
-            let boxHtml = '<div id="extraBoxes" class="my-3">';
+            let statusMatch = selectedStatus.length === 0 || selectedStatus.some(s => rowData.status.includes(s));
+            let domainMatch = selectedDomains.length === 0 || selectedDomains.some(d => rowData.domain_provider.includes(d));
+            let hostingMatch = selectedHostings.length === 0 || selectedHostings.some(h => rowData.hosting_provider.includes(h));
+            let reviewMatch = selectedReviews.length === 0 || selectedReviews.some(r => rowData.review.includes(r));
 
-            let rows = allData.filter(r => {
-                let statusMatch = selectedStatus.length === 0 || selectedStatus.some(s => r.status.includes(s));
-                let domainMatch = selectedDomains.length === 0 || selectedDomains.some(d => r.domain_provider.includes(d));
-                let hostingMatch = selectedHostings.length === 0 || selectedHostings.some(h => r.hosting_provider.includes(h));
-                let reviewMatch = selectedReviews.length === 0 || selectedReviews.some(rv => r.review.includes(rv));
-                return statusMatch && domainMatch && hostingMatch && reviewMatch;
-            });
-
-            // Emails
-            if (showFields.includes('email')) {
-                let emails = rows.map(r => r.email).filter(e => e && e !== '-');
-                if (emails.length) {
-                    boxHtml += `<div class="mb-3">
-                <h6>All Emails (Total: ${emails.length})</h6>
-                <textarea id="emailListBox" class="form-control" rows="4">${emails.join(", ")}</textarea>
-                <button id="copyEmailsBtn" class="btn btn-sm btn-primary mt-2">Copy All Emails</button>
-            </div>`;
-                }
+            // Handle Project Type
+            let projectTypes = [];
+            if (rowData.project_type) {
+                if (Array.isArray(rowData.project_type)) projectTypes = rowData.project_type;
+                else projectTypes = rowData.project_type.split(',');
             }
+            let projectMatch = selectedProjects.length === 0 || selectedProjects.some(p => projectTypes.includes(p));
 
-            // Phones
-            if (showFields.includes('phone')) {
-                let phones = rows.map(r => r.phone).filter(p => p && p !== '-');
-                if (phones.length) {
-                    boxHtml += `<div class="mb-3">
-                <h6>All Phone Numbers (Total: ${phones.length})</h6>
-                <textarea id="phoneListBox" class="form-control" rows="4">${phones.join(", ")}</textarea>
-                <button id="copyPhonesBtn" class="btn btn-sm btn-success mt-2">Copy All Phones</button>
-            </div>`;
-                }
+            if (statusMatch && domainMatch && hostingMatch && reviewMatch && projectMatch) {
+                $(this.node()).show();
+            } else {
+                $(this.node()).hide();
             }
+        });
 
-            boxHtml += '</div>';
-            $('#clientTable_wrapper').before(boxHtml);
+        updateExtraBoxes();
+    }
 
-            $('#copyEmailsBtn').on('click', function() {
-                $('#emailListBox').select();
-                document.execCommand('copy');
-                alert('✅ All emails copied!');
-            });
-            $('#copyPhonesBtn').on('click', function() {
-                $('#phoneListBox').select();
-                document.execCommand('copy');
-                alert('✅ All phone numbers copied!');
-            });
+    // Filter change events
+    $('.filter').on('change', function () {
+        applyFilters();
+    });
+
+    // Show Email / Phone boxes
+    function updateExtraBoxes() {
+        $('#extraBoxes').remove();
+
+        let showFields = $('.filter[data-type="show"]:checked').map(function () { return $(this).val(); }).get();
+        if (showFields.length === 0) return;
+
+        let selectedStatus = $('.filter[data-type="status"]:checked').map(function () { return $(this).val(); }).get();
+        let selectedDomains = $('.filter[data-type="domain_provider"]:checked').map(function () { return $(this).val(); }).get();
+        let selectedHostings = $('.filter[data-type="hosting_provider"]:checked').map(function () { return $(this).val(); }).get();
+        let selectedReviews = $('.filter[data-type="review"]:checked').map(function () { return $(this).val(); }).get();
+        let selectedProjects = $('.filter[data-type="project_type"]:checked').map(function () { return $(this).val(); }).get();
+
+        let rows = allData.filter(r => {
+            let statusMatch = selectedStatus.length === 0 || selectedStatus.some(s => r.status.includes(s));
+            let domainMatch = selectedDomains.length === 0 || selectedDomains.some(d => r.domain_provider.includes(d));
+            let hostingMatch = selectedHostings.length === 0 || selectedHostings.some(h => r.hosting_provider.includes(h));
+            let reviewMatch = selectedReviews.length === 0 || selectedReviews.some(rv => r.review.includes(rv));
+
+            // Project Type
+            let projectTypes = [];
+            if (r.project_type) {
+                if (Array.isArray(r.project_type)) projectTypes = r.project_type;
+                else projectTypes = r.project_type.split(',');
+            }
+            let projectMatch = selectedProjects.length === 0 || selectedProjects.some(p => projectTypes.includes(p));
+
+            return statusMatch && domainMatch && hostingMatch && reviewMatch && projectMatch;
+        });
+
+        let boxHtml = '<div id="extraBoxes" class="my-3">';
+
+        // Emails
+        if (showFields.includes('email')) {
+            let emails = rows.map(r => r.email).filter(e => e && e !== '-');
+            if (emails.length) {
+                boxHtml += `<div class="mb-3">
+                    <h6>All Emails (Total: ${emails.length})</h6>
+                    <textarea id="emailListBox" class="form-control" rows="4">${emails.join(", ")}</textarea>
+                    <button id="copyEmailsBtn" class="btn btn-sm btn-primary mt-2">Copy All Emails</button>
+                </div>`;
+            }
         }
 
+        // Phones
+        if (showFields.includes('phone')) {
+            let phones = rows.map(r => r.phone).filter(p => p && p !== '-');
+            if (phones.length) {
+                boxHtml += `<div class="mb-3">
+                    <h6>All Phone Numbers (Total: ${phones.length})</h6>
+                    <textarea id="phoneListBox" class="form-control" rows="4">${phones.join(", ")}</textarea>
+                    <button id="copyPhonesBtn" class="btn btn-sm btn-success mt-2">Copy All Phones</button>
+                </div>`;
+            }
+        }
 
-        // Initial load
-        loadClients();
+        boxHtml += '</div>';
+        $('#clientTable_wrapper').before(boxHtml);
 
-    });
+        $('#copyEmailsBtn').on('click', function () {
+            $('#emailListBox').select();
+            document.execCommand('copy');
+            alert('✅ All emails copied!');
+        });
+        $('#copyPhonesBtn').on('click', function () {
+            $('#phoneListBox').select();
+            document.execCommand('copy');
+            alert('✅ All phone numbers copied!');
+        });
+    }
+
+    // Initial load
+    loadClients();
+
+});
 </script>
 
 <?php get_footer(); ?>

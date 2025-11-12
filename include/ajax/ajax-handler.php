@@ -59,8 +59,6 @@ function faroque_load_clients()
         $details_page = site_url('/client-details/');
         $client_name_link = '<a href="' . $details_page . '?client_id=' . $client_id . '">' . $client_name . '</a>';
 
-
-
         $services = isset($client_services[$client_id]) ? $client_services[$client_id] : [];
 
         $domains = [];
@@ -79,18 +77,32 @@ function faroque_load_clients()
             $reviews[] = esc_html(get_field('review', $srv->ID));
         }
 
+        $projectTypesArr = [];
+            foreach ($services as $srv) {
+                $pt = get_field('project_type', $srv->ID);
+                if ($pt) {
+                    if (is_array($pt)) {
+                        $projectTypesArr = array_merge($projectTypesArr, $pt);
+                    } else {
+                        $projectTypesArr[] = $pt;
+                    }
+                }
+            }
+
         $data[] = [
-            'sl' => $sl++,
-            'name' => $client_name_link,
-            'phone' => $phone ?: '-',
-            'email' => $email ?: '-',
-            'khatha_no' => !empty($khatha_nos) ? implode('<br>', $khatha_nos) : '-',
-            'domains' => !empty($domains) ? implode('<br>', $domains) : '<span class="text-muted">No Domains</span>',
-            'domain_provider' => !empty($domain_providers) ? implode('<br>', $domain_providers) : '-',
-            'hosting_provider' => !empty($hosting_providers) ? implode('<br>', $hosting_providers) : '-',
-            'address' => $address ?: '-',
-            'status' => !empty($statuses) ? implode('<br>', $statuses) : '-',
-            'review' => !empty($reviews) ? implode('<br>', $reviews) : '-'
+            'sl'                => $sl++,
+            'name'              => $client_name_link,
+            'phone'             => $phone ?: '-',
+            'email'             => $email ?: '-',
+            'khatha_no'         => !empty($khatha_nos) ? implode('<br>', $khatha_nos) : '-',
+            'domains'           => !empty($domains) ? implode('<br>', $domains) : '<span class="text-muted">No Domains</span>',
+            'domain_provider'   => !empty($domain_providers) ? implode('<br>', $domain_providers) : '-',
+            'hosting_provider'  => !empty($hosting_providers) ? implode('<br>', $hosting_providers) : '-',
+            'address'           => $address ?: '-',
+            'status'            => !empty($statuses) ? implode('<br>', $statuses) : '-',
+            'review'            => !empty($reviews) ? implode('<br>', $reviews) : '-',
+            'project_type'      => !empty($projectTypesArr) ? implode('<br>', $projectTypesArr) : '-'
+
         ];
     }
 
