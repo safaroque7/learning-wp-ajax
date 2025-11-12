@@ -7,7 +7,7 @@ get_header();
 // ===============================
 // Password Protection Check
 // ===============================
-if ( post_password_required() ) {
+if (post_password_required()) {
     echo get_the_password_form();
     get_footer();
     return; // Password না দেওয়া হলে বাকি অংশ লোড হবে না
@@ -72,10 +72,10 @@ $total_domains = count($all_services);
 // ==========================
 // Count by status
 // ==========================
-$status_counts = ['Active'=>0,'Inactive'=>0,'Pending'=>0];
+$status_counts = ['Active' => 0, 'Inactive' => 0, 'Pending' => 0];
 foreach ($all_services as $srv) {
     $st = get_field('status', $srv->ID);
-    if(isset($status_counts[$st])) {
+    if (isset($status_counts[$st])) {
         $status_counts[$st]++;
     }
 }
@@ -83,7 +83,7 @@ foreach ($all_services as $srv) {
 // ==========================
 // Determine Header Gradient and Total Domains Card Class
 // ==========================
-$statuses = array_map(function($srv){
+$statuses = array_map(function ($srv) {
     return get_field('status', $srv->ID);
 }, $all_services);
 
@@ -125,7 +125,7 @@ if (!$statuses) {
         text-align: center;
         padding: 25px 15px;
         background: <?php echo $header_gradient;
-        ?>;
+                    ?>;
     }
 
     .client-header img {
@@ -224,53 +224,53 @@ if (!$statuses) {
                         <i class="fas fa-globe"></i> Domains / Services
                     </h5>
                     <?php if ($total_domains > 0): ?>
-                    <div class="table-responsive">
-                        <table id="clientServices" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Domain Name</th>
-                                    <th>Khatha No</th>
-                                    <th>Domain Provider</th>
-                                    <th>Hosting Provider</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                $i = 1;
-                                foreach ($all_services as $srv):
-                                    $domain_name = esc_html($srv->post_title);
-                                    $khatha = esc_html(get_field('khatha_no', $srv->ID));
-                                    $domain_provider = esc_html(get_field('domain_provider', $srv->ID));
-                                    $hosting_provider = esc_html(get_field('hosting_provider', $srv->ID));
-                                    $status = esc_html(get_field('status', $srv->ID));
-                                ?>
-                                <tr>
-                                    <td><?php echo $i++; ?></td>
-                                    <td><a href="https://<?php echo $domain_name; ?>"
-                                            target="_blank"><?php echo $domain_name; ?></a></td>
-                                    <td><?php echo $khatha ?: '-'; ?></td>
-                                    <td><?php echo $domain_provider ?: '-'; ?></td>
-                                    <td><?php echo $hosting_provider ?: '-'; ?></td>
-                                    <td>
-                                        <?php
-                                        if ($status === 'Active') {
-                                            echo '<span class="badge badge-success">Active</span>';
-                                        } elseif ($status === 'Inactive') {
-                                            echo '<span class="badge badge-danger">Inactive</span>';
-                                        } else {
-                                            echo '<span class="badge badge-primary">'.($status ?: '-').'</span>';
-                                        }
-                                        ?>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                        <div class="table-responsive">
+                            <table id="clientServices" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Domain Name</th>
+                                        <th>Khatha No</th>
+                                        <th>Domain Provider</th>
+                                        <th>Hosting Provider</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $i = 1;
+                                    foreach ($all_services as $srv):
+                                        $domain_name = esc_html($srv->post_title);
+                                        $khatha = esc_html(get_field('khatha_no', $srv->ID));
+                                        $domain_provider = esc_html(get_field('domain_provider', $srv->ID));
+                                        $hosting_provider = esc_html(get_field('hosting_provider', $srv->ID));
+                                        $status = esc_html(get_field('status', $srv->ID));
+                                    ?>
+                                        <tr>
+                                            <td><?php echo $i++; ?></td>
+                                            <td><a href="https://<?php echo $domain_name; ?>"
+                                                    target="_blank"><?php echo $domain_name; ?></a></td>
+                                            <td><?php echo $khatha ?: '-'; ?></td>
+                                            <td><?php echo $domain_provider ?: '-'; ?></td>
+                                            <td><?php echo $hosting_provider ?: '-'; ?></td>
+                                            <td>
+                                                <?php
+                                                if ($status === 'Active') {
+                                                    echo '<span class="badge badge-success">Active</span>';
+                                                } elseif ($status === 'Inactive') {
+                                                    echo '<span class="badge badge-danger">Inactive</span>';
+                                                } else {
+                                                    echo '<span class="badge badge-primary">' . ($status ?: '-') . '</span>';
+                                                }
+                                                ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
-                    <p class="text-muted">No services found for this client.</p>
+                        <p class="text-muted">No services found for this client.</p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -286,7 +286,7 @@ if (!$statuses) {
 <script src="https://kit.fontawesome.com/a2e0e6ad3d.js" crossorigin="anonymous"></script>
 
 <script>
-    jQuery(document).ready(function ($) {
+    jQuery(document).ready(function($) {
         $('#clientServices').DataTable({
             pageLength: 10,
             order: [
