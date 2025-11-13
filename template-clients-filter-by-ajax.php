@@ -3,119 +3,121 @@
 Template Name: Clients DataTable Page
 */
 get_header();
-global $wpdb;
 
 // ===============================
-// Password Protection
+// Password Protection Check
 // ===============================
-if (post_password_required()) {
+if ( post_password_required() ) {
+    echo '<div class="container"><div class="row"><div class="col-12">';
     echo get_the_password_form();
+    echo '</div></div></div>';
     get_footer();
-    return;
+    return; // Stop here if password not entered
 }
 ?>
+
+
+
+<style>
+    .card-header {
+        user-select: none;
+    }
+
+    .arrow {
+        font-weight: bold;
+    }
+</style>
 
 <div class="container-fluid my-4">
     <div class="row">
 
         <!-- Sidebar Filters -->
         <div class="col-md-2">
-            <div class="bg-white p-md-3 p-2">
-                <h5 class="mb-3">Filters</h5>
-                <div class="list-group">
 
-                    <!-- Show Emails and Phone -->
-                    <h6 class="mb-2">Show Emails and Phone</h6>
-                    <label><input type="checkbox" class="filter" value="email" data-type="show"> Show Email</label>
-                    <label><input type="checkbox" class="filter" value="phone" data-type="show"> Show Phone</label>
+            <div class="card mb-2">
+                <div class="card-header d-flex justify-content-between align-items-center text-white bg-dark"
+                    style="cursor:pointer;" data-toggle="collapse" data-target="#collapse_email_phone_number">
+                    <span class="text-white"> Email and Phone </span>
+                    <span class="arrow text-white">&#9650;</span> <!-- Up arrow initially -->
+                </div>
+                <div id="collapse_email_phone_number" class="collapse show">
 
-                    <hr>
+                    <div class="card-body p-0">
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <label class="mb-0"><input type="checkbox" class="filter" value="email"
+                                        data-type="show"> Show
+                                    Email</label>
+                            </div>
+                            <div class="list-group-item">
+                                <label class="mb-0"><input type="checkbox" class="filter" value="phone"
+                                        data-type="show"> Show
+                                    Phone</label>
+                            </div>
+                        </div>
 
-                    <!-- Filter by Status -->
-                    <h6 class="mb-2">Filter by Status</h6>
-                    <?php
-                    $statuses = $wpdb->get_col("
-                        SELECT DISTINCT pm.meta_value
-                        FROM {$wpdb->postmeta} pm
-                        INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-                        WHERE pm.meta_key='status' AND p.post_type='services' AND p.post_status='publish'
-                        ORDER BY pm.meta_value ASC
-                    ");
-                    foreach ($statuses as $status) {
-                        echo '<label><input type="checkbox" class="filter" value="' . esc_attr($status) . '" data-type="status"> ' . esc_html($status) . '</label>';
-                    }
-                    ?>
-
-                    <hr>
-
-                    <!-- Filter by Domain Provider -->
-                    <h6 class="mb-2">Filter by Domain Provider</h6>
-                    <?php
-                    $domains = $wpdb->get_col("
-                        SELECT DISTINCT pm.meta_value
-                        FROM {$wpdb->postmeta} pm
-                        INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-                        WHERE pm.meta_key='domain_provider' AND p.post_type='services' AND p.post_status='publish'
-                        ORDER BY pm.meta_value ASC
-                    ");
-                    foreach ($domains as $d) {
-                        echo '<label><input type="checkbox" class="filter" value="' . esc_attr($d) . '" data-type="domain_provider"> ' . esc_html($d) . '</label>';
-                    }
-                    ?>
-
-                    <hr>
-
-                    <!-- Filter by Hosting Provider -->
-                    <h6 class="mb-2">Filter by Hosting Provider</h6>
-                    <?php
-                    $hosts = $wpdb->get_col("
-                        SELECT DISTINCT pm.meta_value
-                        FROM {$wpdb->postmeta} pm
-                        INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-                        WHERE pm.meta_key='hosting_provider' AND p.post_type='services' AND p.post_status='publish'
-                        ORDER BY pm.meta_value ASC
-                    ");
-                    foreach ($hosts as $h) {
-                        echo '<label><input type="checkbox" class="filter" value="' . esc_attr($h) . '" data-type="hosting_provider"> ' . esc_html($h) . '</label>';
-                    }
-                    ?>
-
-                    <hr>
-
-                    <!-- Filter by Review -->
-                    <h6 class="mb-2">Filter by Review</h6>
-                    <?php
-                    $reviews = $wpdb->get_col("
-                        SELECT DISTINCT pm.meta_value
-                        FROM {$wpdb->postmeta} pm
-                        INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-                        WHERE pm.meta_key='review' AND p.post_type='services' AND p.post_status='publish'
-                        ORDER BY pm.meta_value ASC
-                    ");
-                    foreach ($reviews as $r) {
-                        echo '<label><input type="checkbox" class="filter" value="' . esc_attr($r) . '" data-type="review"> ' . esc_html($r) . '</label>';
-                    }
-                    ?>
-
-                    <hr>
-
-                    <!-- Filter By Project Type -->
-                    <h6> Filter by Project Type </h6>
-                    <?php 
-                        $projectTypes = $wpdb->get_col("
-                            SELECT DISTINCT pm.meta_value
-                            FROM {$wpdb->postmeta} pm
-                            INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-                            WHERE pm.meta_key='project_type' AND p.post_type='services' AND p.post_status='publish'
-                            ORDER BY pm.meta_value ASC
-                        ");
-                        foreach($projectTypes as $projectType ) {
-                            echo '<label> <input type="checkbox" class="filter" value="' . esc_attr($projectType) . '" data-type="project_type"> ' . esc_html($projectType) . '</label>';
-                        };
-                     ?>
-
+                    </div>
                 </div>
             </div>
+
+
+            <?php
+                global $wpdb;
+
+                // Meta keys
+                $meta_keys = [
+                    'status'           => 'Status',
+                    'domain_provider'  => 'Domain Provider',
+                    'hosting_provider' => 'Hosting Provider',
+                    'review'           => 'Review',
+                    'project_type'     => 'Project Type'
+                ];
+
+                foreach ($meta_keys as $meta_key => $label) :
+                    // Get values with count
+                    $values = $wpdb->get_results("
+                        SELECT pm.meta_value, COUNT(*) as count
+                        FROM {$wpdb->postmeta} pm
+                        INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                        WHERE pm.meta_key='{$meta_key}' AND p.post_type='services' AND p.post_status='publish'
+                        GROUP BY pm.meta_value
+                        ORDER BY pm.meta_value ASC
+                    ");
+                    if (!$values) continue;
+                ?>
+            <div class="card mb-2">
+                <div class="card-header d-flex justify-content-between align-items-center text-white bg-dark"
+                    style="cursor:pointer;" data-toggle="collapse"
+                    data-target="#collapse_<?php echo esc_attr($meta_key); ?>">
+                    <span class="text-white"><?php echo esc_html($label); ?></span>
+                    <span class="arrow text-white">&#9650;</span> <!-- Up arrow initially -->
+                </div>
+                <div id="collapse_<?php echo esc_attr($meta_key); ?>" class="collapse show">
+                    <div class="card-body p-0">
+                        <div class="list-group">
+
+                            <?php foreach ($values as $val) : ?>
+                            <div class="list-group-item">
+                                <label class="d-flex justify-content-between mb-0">
+
+                                    <div class="meta-key-name">
+                                        <input type="checkbox" class="filter"
+                                            value="<?php echo esc_attr($val->meta_value); ?>"
+                                            data-type="<?php echo esc_attr($meta_key); ?>">
+                                        <?php echo esc_html($val->meta_value); ?>
+                                    </div>
+                                    <div class="figure-box">
+                                        <?php echo intval($val->count); ?>
+                                    </div>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+
         </div>
 
         <!-- Results -->
@@ -270,15 +272,18 @@ if (post_password_required()) {
                 let selectedReviews = $('.filter[data-type="review"]:checked').map(function () {
                     return $(this).val();
                 }).get();
-                let selectedProjects = $('.filter[data-type="project_type"]:checked').map(function () {
-                    return $(this).val();
-                }).get();
+                let selectedProjects = $('.filter[data-type="project_type"]:checked').map(
+                    function () {
+                        return $(this).val();
+                    }).get();
 
-                let statusMatch = selectedStatus.length === 0 || selectedStatus.some(s => rowData.status
+                let statusMatch = selectedStatus.length === 0 || selectedStatus.some(s => rowData
+                    .status
                     .includes(s));
                 let domainMatch = selectedDomains.length === 0 || selectedDomains.some(d => rowData
                     .domain_provider.includes(d));
-                let hostingMatch = selectedHostings.length === 0 || selectedHostings.some(h => rowData
+                let hostingMatch = selectedHostings.length === 0 || selectedHostings.some(h =>
+                    rowData
                     .hosting_provider.includes(h));
                 let reviewMatch = selectedReviews.length === 0 || selectedReviews.some(r => rowData
                     .review.includes(r));
@@ -339,7 +344,8 @@ if (post_password_required()) {
                     .domain_provider.includes(d));
                 let hostingMatch = selectedHostings.length === 0 || selectedHostings.some(h => r
                     .hosting_provider.includes(h));
-                let reviewMatch = selectedReviews.length === 0 || selectedReviews.some(rv => r.review
+                let reviewMatch = selectedReviews.length === 0 || selectedReviews.some(rv => r
+                    .review
                     .includes(rv));
 
                 // Project Type
@@ -399,6 +405,15 @@ if (post_password_required()) {
         loadClients();
 
     });
+
+    $('.collapse').on('shown.bs.collapse', function () {
+        $(this).prev('.card-header').find('.arrow').html('▼');
+    });
+    $('.collapse').on('hidden.bs.collapse', function () {
+        $(this).prev('.card-header').find('.arrow').html('▲');
+    });
 </script>
+
+
 
 <?php get_footer();
