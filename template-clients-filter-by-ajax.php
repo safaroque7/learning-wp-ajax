@@ -16,8 +16,6 @@ if ( post_password_required() ) {
 }
 ?>
 
-
-
 <style>
     .card-header {
         user-select: none;
@@ -128,10 +126,10 @@ if ( post_password_required() ) {
                         <div class="card-header bg-secondary text-white">
                             <?php
                                 $all_clients = new WP_Query(array(
-                                    'post_type'     =>  'clients',
-                                    'post_status'   =>  'publish',
-                                    'numberposts'   =>   -1,
-                                    'fields'        =>  'ids'
+                                    'post_type'         =>  'clients',
+                                    'post_status'       =>  'publish',
+                                    'posts_per_page'    =>   -1,
+                                    'fields'            =>  'ids'
                                 ));
 
                                 $active_clients = new WP_Query(array(
@@ -152,7 +150,14 @@ if ( post_password_required() ) {
                                 //Inactive Clients
                                 $inactive_clients = $total_clients - $active_clients;
                                 
-                                echo 'Clients\' Information ( ' . $total_clients . ' / ' . $active_clients . ' / ' . $inactive_clients . ' )' ;
+                                echo 'Clients\' Information ( '
+                                . $total_clients
+                                . ' / '
+                                . $active_clients
+                                . ' / '
+                                . $inactive_clients
+                                . ' )';
+
                             ?>
 
                         </div>
@@ -413,7 +418,5 @@ if ( post_password_required() ) {
         $(this).prev('.card-header').find('.arrow').html('▲');
     });
 </script>
-
-
 
 <?php get_footer();
