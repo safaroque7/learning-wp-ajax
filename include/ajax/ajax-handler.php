@@ -42,7 +42,7 @@ function faroque_load_clients()
         'post_type' => 'clients',
         'posts_per_page' => -1,
         'post_status' => 'publish',
-        'orderby' => 'title',
+        'orderby' => 'date',
         'order' => 'ASC'
     ]);
 
